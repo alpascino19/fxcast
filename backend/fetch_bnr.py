@@ -48,7 +48,7 @@ def main():
     wide=df.pivot_table(index="date",columns="currency",values="rate").sort_index()
 
     out=DATA_DIR/"bnr_rates.csv"
-    wide
+    wide.to_csv(out)
     print(f"\nSalvat {len(wide)} zile in {out}")
     print(wide.tail())
 
