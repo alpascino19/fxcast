@@ -1,0 +1,31 @@
+{
+  "trained_on": "2026-10-16",
+  "data_until": "2026-10-15",
+  "features": [
+    "EUR_absret_1",
+    "EUR_vol_5",
+    "EUR_vol_20",
+    "EUR_maxabs_5",
+    "EUR_vol_ratio",
+    "USD_vol_5",
+    "USD_vol_20",
+    "USD_maxabs_5"
+  ],
+  "C": 0.1,
+  "big_move_threshold_pct": 0.25,
+  "evaluation": {
+    "method": "walk-forward pe ani, 2019+",
+    "auc": 0.842,
+    "average_precision": 0.263,
+    "base_rate": 0.0323
+  },
+  "level_thresholds": {
+    "scazut": 0.030498040600336777,
+    "mediu": 0.10205687835766093
+  },
+  "big_move_rate_by_level": {
+    "scazut": 0.0051,
+    "mediu": 0.0307,
+    "ridicat": 0.1735
+  }
+}

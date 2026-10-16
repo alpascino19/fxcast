@@ -46,7 +46,7 @@ QUERIES = {
 }
 
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
-OUT_FILE = DATA_DIR / "news_history"
+OUT_DIR = DATA_DIR / "news_history"
 PROGRESS_FILE = DATA_DIR / "news_history_progress.txt"
 PAUSE = 5
 LIMIT = 40
