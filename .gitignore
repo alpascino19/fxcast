@@ -8,3 +8,4 @@ data/news_history_old.csv
 data/news_history.csv
 data/news_history_progress.txt
 data/features.csv
+data/pipeline.log

@@ -48,6 +48,7 @@ QUERIES = {
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 OUT_DIR = DATA_DIR / "news_history"
 PROGRESS_FILE = DATA_DIR / "news_history_progress.txt"
+DATE_FMT = "%a, %d %b %Y %H:%M:%S GMT"
 PAUSE = 5
 LIMIT = 40
 
@@ -118,12 +119,51 @@ def mark_done(key):
     with open(PROGRESS_FILE, "a", encoding="utf-8") as f:
         f.write(key + "\n")
 
+def save_new(rows):
+    if not rows:
+        return 0
+    df = pd.DataFrame(rows)
+    years = pd.to_datetime(df["published"], utc=True, format=DATE_FMT, errors="coerce").dt.year
+    added = 0
+    for year, part in df.groupby(years):
+        out_file = OUT_DIR / f"{int(year)}.csv"
+        if out_file.exists():
+            old = pd.read_csv(out_file, usecols=["link", "category"])
+            seen = set(zip(old["link"], old["category"]))
+            part = part[[(l, c) not in seen for l, c in zip(part["link"], part["category"])]]
+        if len(part):
+            part.to_csv(out_file, mode="a", header=not out_file.exists(),
+                        index=False, encoding="utf-8")
+            added += len(part)
+    return added
+
+
+def collect_recent(days):
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    start = date.today() - timedelta(days=days)
+    end = date.today() + timedelta(days=1)
+    total = 0
+    for category, queries in QUERIES.items():
+        for query in queries:
+            rows = fetch_window(query, start, end)
+            for r in rows:
+                r["category"] = category
+                r["query"] = query
+            added = save_new(rows)
+            total += added
+            print(f"[recent] {category} | {query}: {len(rows)} gasite, {added} noi")
+    print(f"Total articole noi: {total}")
 
 def main():
     parser = argparse.ArgumentParser(description="Colectare istorica de stiri din Google News")
     parser.add_argument("--start", default="2015-01", help="luna de inceput, format AAAA-LL")
     parser.add_argument("--end", default=date.today().strftime("%Y-%m"), help="luna de final, format AAAA-LL")
+    parser.add_argument("--recent", type=int, help="colecteaza doar ultimele N zile")
     args = parser.parse_args()
+
+    if args.recent:
+        collect_recent(args.recent)
+        return
 
     DATA_DIR.mkdir(exist_ok=True)
     OUT_DIR.mkdir(exist_ok=True)
@@ -147,7 +187,6 @@ def main():
                                               index=False, encoding="utf-8")
                 mark_done(key)
                 print(f"[{start:%Y-%m}] {category} | {query}: {len(rows)} articole")
-
 
 if __name__ == "__main__":
     main()
