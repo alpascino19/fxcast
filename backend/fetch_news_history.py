@@ -46,7 +46,7 @@ QUERIES = {
 }
 
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
-OUT_FILE = DATA_DIR / "news_history.csv"
+OUT_FILE = DATA_DIR / "news_history"
 PROGRESS_FILE = DATA_DIR / "news_history_progress.txt"
 PAUSE = 5
 LIMIT = 40
@@ -126,6 +126,7 @@ def main():
     args = parser.parse_args()
 
     DATA_DIR.mkdir(exist_ok=True)
+    OUT_DIR.mkdir(exist_ok=True)
     done = load_progress()
 
     for start, end in month_range(args.start, args.end):
@@ -141,7 +142,8 @@ def main():
                     r["query"] = query
 
                 if rows:
-                    pd.DataFrame(rows).to_csv(OUT_FILE, mode="a", header=not OUT_FILE.exists(),
+                    out_file = OUT_DIR / f"{start.year}.csv"
+                    pd.DataFrame(rows).to_csv(out_file, mode="a", header=not out_file.exists(),
                                               index=False, encoding="utf-8")
                 mark_done(key)
                 print(f"[{start:%Y-%m}] {category} | {query}: {len(rows)} articole")
